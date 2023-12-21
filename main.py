@@ -14,8 +14,7 @@ menu_prompt = [
          ),
     Checkbox('Operations',
              message='Choose the operations you wanna practice:',
-             choices=['Addition', 'Subtraction', 'Multiplication', 'Division', 'Exponentiation',
-                      # 'Roots',
+             choices=['Addition', 'Subtraction', 'Multiplication', 'Division', 'Exponentiation', 'Roots',
                       # 'Logarithms'
                       ],
              ),
@@ -51,9 +50,24 @@ def calculation(operation, difficulty):
         case 'Exponentiation':
             operator = '**'
             correct_result = a ** b
-        # case 'Roots':
-        #     operator = '√'
-        #     correct_result = a ** (1 / b)
+        case 'Roots':
+            match difficulty:
+                case 'Easy':
+                    increment = 3
+                case 'Medium':
+                    increment = 4
+                case 'Hard':
+                    increment = 5
+                case _:
+                    increment = 3
+            a = randint(2, increment * 3)
+            b = randint(2, increment)
+            c = a ** b
+            operator = '√'
+            temp = a
+            a = b
+            b = c
+            correct_result = temp
         # case 'Logarithms':
         #     operator = 'log'
         #     correct_result = a ** (1 / b)
@@ -76,7 +90,7 @@ def calculation(operation, difficulty):
         print(f'Correct result is {correct_result}')
         return {'Correct': 0,
                 'Time': stopwatch,
-                'Answer': f'{a} {operator} {b} = {answer}, Correct answer: {correct_result}'
+                'Answer': f'{a} {operator} {b} = {answer}, Correct result: {correct_result}'
                 }
 
 
@@ -130,11 +144,11 @@ Choose the difficulty level:
             'Total Time': 0,
             'All Answers': [],
         },
-        # 'Roots': {
-        #     'Correct counter': 0,
-        #     'Total Time': 0,
-        #     'All Answers': [],
-        # },
+        'Roots': {
+            'Correct counter': 0,
+            'Total Time': 0,
+            'All Answers': [],
+        },
         # 'Logarithms': {
         #     'Correct counter': 0,
         #     'Total Time': 0,
