@@ -166,3 +166,6 @@ Cya!
 
 if __name__ == '__main__':
     main()
+
+# Author: Tomasz Kołtuniak
+# https://github.com/TomaszKoltuniak/math_trainer
