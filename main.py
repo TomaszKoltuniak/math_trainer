@@ -41,18 +41,18 @@ def calculation(operation, difficulty):
         case 'Multiplication':
             operator = '*'
             correct_result = a * b
-        case 'Division':
-            operator = '/'
-            correct_result = a / b
-        case 'Exponentiation':
-            operator = '**'
-            correct_result = a ** b
-        case 'Roots':
-            operator = '√'
-            correct_result = a ** (1 / b)
-        case 'Logarithms':
-            operator = 'log'
-            correct_result = a ** (1 / b)
+        # case 'Division':
+        #     operator = '/'
+        #     correct_result = a / b
+        # case 'Exponentiation':
+        #     operator = '**'
+        #     correct_result = a ** b
+        # case 'Roots':
+        #     operator = '√'
+        #     correct_result = a ** (1 / b)
+        # case 'Logarithms':
+        #     operator = 'log'
+        #     correct_result = a ** (1 / b)
         case _:
             print('Error: Unknown operation')
             return 'Error: Unknown operation'
@@ -63,10 +63,16 @@ def calculation(operation, difficulty):
     stopwatch = end_time - start_time
     if correct_result == answer:
         print('\033[92mCorrect!\033[0m')
-        return f'Correct {a} {operator} {b} = {answer}'
+        return {'Correct': 1,
+                'Time': stopwatch,
+                'Answer': f'{a} {operator} {b} = {answer}'
+                }
     else:
         print('\033[91mIncorrect!\033[0m')
-        return f'Incorrect {a} {operator} {b} = {answer} should be {correct_result}'
+        return {'Correct': 0,
+                'Time': stopwatch,
+                'Answer': f'{a} {operator} {b} = {answer}, Correct answer: {correct_result}'
+                }
 
 
 def main():
@@ -77,6 +83,13 @@ Choose the difficulty level:
     ''')
 
     settings = prompt(menu_prompt)
+
+    for timer in range(5, 0, -1):
+        print(f'\rStarting in {timer} seconds...', end='')
+        sleep(1)
+
+    print('\n\nGood luck!\n\n')
+
     match settings['Difficulty']:
         case 'Easy':
             difficulty = 1
@@ -87,27 +100,62 @@ Choose the difficulty level:
         case _:
             difficulty = 1
     score = {
-        'Addition': [],
-        'Subtraction': [],
-        'Multiplication': [],
-        'Division': [],
-        'Exponentiation': [],
-        'Roots': [],
-        'Logarithms': [],
+        'Addition': {
+            'Correct counter': 0,
+            'Total Time': 0,
+            'All Answers': [],
+        },
+        'Subtraction': {
+            'Correct counter': 0,
+            'Total Time': 0,
+            'All Answers': [],
+        },
+        'Multiplication': {
+            'Correct counter': 0,
+            'Total Time': 0,
+            'All Answers': [],
+        },
+        # 'Division': {
+        #     'Correct counter': 0,
+        #     'Total Time': 0,
+        #     'All Answers': [],
+        # },
+        # 'Exponentiation': {
+        #     'Correct counter': 0,
+        #     'Total Time': 0,
+        #     'All Answers': [],
+        # },
+        # 'Roots': {
+        #     'Correct counter': 0,
+        #     'Total Time': 0,
+        #     'All Answers': [],
+        # },
+        # 'Logarithms': {
+        #     'Correct counter': 0,
+        #     'Total Time': 0,
+        #     'All Answers': [],
+        # },
     }
 
     keep_playing = {'continue': 'Continue'}
     while keep_playing['continue'] == 'Continue':
         for operation in settings['Operations']:
-            score[operation].append(calculation(operation, difficulty))
+            result = calculation(operation, difficulty)
+            score[operation]['Correct counter'] += result['Correct']
+            score[operation]['Total Time'] += result['Time']
+            score[operation]['All Answers'].append(result['Answer'])
 
         keep_playing = prompt(keep_playing_prompt)
 
     print('\nScoreboard:')
     for operation in settings['Operations']:
-        print(f'\n{operation}:')
-        for result in score[operation]:
-            print(result)
+        success_rate = round(score[operation]['Correct counter'] / len(score[operation]['All Answers']) * 100)
+        average_time = round(score[operation]['Total Time'] / len(score[operation]['All Answers']), 1)
+        print(f'''
+\n{operation}:
+{success_rate}% - Success Rate
+{average_time}s - Average Time
+''')
 
 
 if __name__ == '__main__':
