@@ -1,11 +1,15 @@
 from inquirer import Text, List, Checkbox, prompt
-from random import randint
+from json import dump, load, decoder
+from pandas import DataFrame
 from time import sleep, time
+from random import randint
+
+LEADERBOARD_FILE_NAME = 'leaderboard.json'
 
 menu_prompt = [
     Text('Name',
          message='Whats your name?',
-         default='John'
+         default='Annonymus'
          ),
     List('Difficulty',
          message='Choose the difficulty level:',
@@ -98,7 +102,6 @@ def main():
     print('''
 Welcome to the Math Trainer! by Tomasz Kołtuniak
 This program will help you practice your math skills.
-Choose the difficulty level:
     ''')
 
     settings = prompt(menu_prompt)
@@ -166,16 +169,53 @@ Choose the difficulty level:
 
         keep_playing = prompt(keep_playing_prompt)
 
-    print(f"\n{settings['Name']}'s Scoreboard:")
+    # Scoreboard
+    total_correct_counter = 0
+    total_time = 0
+    total_all_answers = 0
+    print(f"\n{settings['Name']}'s detailed Scoreboard:")
     for operation in settings['Operations']:
+        total_correct_counter += score[operation]['Correct counter']
+        total_time += score[operation]['Total Time']
+        total_all_answers += len(score[operation]['All Answers'])
         success_rate = round(score[operation]['Correct counter'] / len(score[operation]['All Answers']) * 100)
-        average_time = round(score[operation]['Total Time'] / len(score[operation]['All Answers']), 1)
+        average_time = round(score[operation]['Total Time'] / len(score[operation]['All Answers']), 2)
         print(f'''
 {operation}:
 {success_rate}% - Success Rate
 {average_time}s - Average Time
-Cya!
 ''')
+
+    success_rate = round(total_correct_counter / total_all_answers, 2)
+    average_time = round(total_time / total_all_answers, 2)
+
+    # Leaderboard
+    print('\n\n\nLeaderboard:')
+    score = {
+        'Success rate': success_rate,
+        'Average time': average_time,
+    }
+
+    try:
+        with open(LEADERBOARD_FILE_NAME, 'r') as file:
+            leaderboard = load(file)
+    except (FileNotFoundError, decoder.JSONDecodeError):
+        leaderboard = {}
+
+    name = settings['Name']
+
+    if name in leaderboard:
+        leaderboard[name]['Success rate'] = round((leaderboard[name]['Success rate'] + score['Success rate']) / 2, 2)
+        leaderboard[name]['Average time'] = round((leaderboard[name]['Average time'] + score['Average time']) / 2, 2)
+    else:
+        leaderboard[name] = score
+
+    with open(LEADERBOARD_FILE_NAME, 'w') as file:
+        dump(leaderboard, file)
+
+    table = DataFrame.from_dict(leaderboard, orient='index')
+    sorted_table = table.sort_values(by='Success rate', ascending=False)
+    print(sorted_table)
 
 
 if __name__ == '__main__':
